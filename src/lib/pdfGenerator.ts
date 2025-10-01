@@ -224,7 +224,15 @@ export async function generatePDF(visit: FarmVisit) {
     </div>
     ` : ''}
 
-    ${visit.photo_url ? `
+    ${visit.photo_urls && visit.photo_urls.length > 0 ? `
+    <div class="field">
+      <span class="field-label">Farm Photos:</span>
+      <br>
+      ${visit.photo_urls.map((url, index) => `
+        <img src="${url}" alt="Farm visit photo ${index + 1}" class="photo" crossorigin="anonymous" style="margin-bottom: 10px;">
+      `).join('')}
+    </div>
+    ` : visit.photo_url ? `
     <div class="field">
       <span class="field-label">Farm Photo:</span>
       <br>
@@ -259,6 +267,18 @@ export async function generatePDF(visit: FarmVisit) {
     <div class="field">
       <span class="field-label">Proposed Follow-up Date:</span>
       <span class="field-value">${new Date(visit.proposed_follow_up_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+    </div>
+    ` : ''}
+    <div class="field">
+      <span class="field-label">Routine Check:</span>
+      <span class="field-value" style="font-weight: 600; color: ${visit.routine_check ? '#ea580c' : '#059669'};">
+        ${visit.routine_check ? 'YES' : 'NO'}
+      </span>
+    </div>
+    ${visit.routine_check && visit.routine_check_date ? `
+    <div class="field">
+      <span class="field-label">Routine Check Date:</span>
+      <span class="field-value">${new Date(visit.routine_check_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
     </div>
     ` : ''}
     <div class="field">

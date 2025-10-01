@@ -269,7 +269,21 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                         </div>
                       )}
 
-                      {visit.photo_url && (
+                      {visit.photo_urls && visit.photo_urls.length > 0 ? (
+                        <div>
+                          <h4 className="font-semibold text-gray-800 mb-3">Photos ({visit.photo_urls.length})</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {visit.photo_urls.map((url, index) => (
+                              <img
+                                key={index}
+                                src={url}
+                                alt={`Farm visit ${index + 1}`}
+                                className="max-w-full rounded-lg shadow-md"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ) : visit.photo_url ? (
                         <div>
                           <h4 className="font-semibold text-gray-800 mb-3">Photo</h4>
                           <img
@@ -278,7 +292,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                             className="max-w-md rounded-lg shadow-md"
                           />
                         </div>
-                      )}
+                      ) : null}
 
                       {visit.video_link && (
                         <div>
@@ -312,6 +326,18 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                             <p>
                               <span className="font-medium">Proposed Date:</span>{' '}
                               {formatDate(visit.proposed_follow_up_date)}
+                            </p>
+                          )}
+                          <p>
+                            <span className="font-medium">Routine Check:</span>{' '}
+                            <span className={visit.routine_check ? 'text-orange-600 font-semibold' : ''}>
+                              {visit.routine_check ? 'Yes' : 'No'}
+                            </span>
+                          </p>
+                          {visit.routine_check && visit.routine_check_date && (
+                            <p>
+                              <span className="font-medium">Routine Check Date:</span>{' '}
+                              {formatDate(visit.routine_check_date)}
                             </p>
                           )}
                           <p>

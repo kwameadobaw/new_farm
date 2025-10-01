@@ -28,11 +28,13 @@ export interface FarmVisit {
   number_of_animals?: number;
   crop_issues?: string[];
   livestock_issues?: string[];
-  photo_url?: string;
+  photo_urls?: string[];
   video_link?: string;
   advice_given: string;
   follow_up_needed: boolean;
   proposed_follow_up_date?: string;
+  routine_check: boolean;
+  routine_check_date?: string;
   training_needed: boolean;
   referral_to_specialist?: string;
   additional_notes?: string;

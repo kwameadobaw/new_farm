@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase, FarmVisit, CropStage } from '../lib/supabase';
 import { Camera, Upload, CheckCircle } from 'lucide-react';
 
-const CROP_ISSUES = ['Pests', 'Diseases', 'Nutrient Deficiency', 'Poor Germination', 'Water Stress'];
-const LIVESTOCK_ISSUES = ['Illness', 'Parasites', 'Malnutrition', 'Poor Housing'];
+const CROP_ISSUES = ['No issues', 'Pests', 'Diseases', 'Nutrient Deficiency', 'Poor Germination', 'Water Stress'];
+const LIVESTOCK_ISSUES = ['No issues', 'Illness', 'Parasites', 'Malnutrition', 'Poor Housing'];
 
 export default function FarmVisitForm() {
   const [cropStages, setCropStages] = useState<CropStage[]>([]);
@@ -11,8 +11,7 @@ export default function FarmVisitForm() {
   const [success, setSuccess] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  const [formData, setFormData] = useState<Partial<FarmVisit>>({
-    farmer_name: '',
+  const [formData, setFormData] = useState<Partial<FarmVisit>>({    farmer_name: '',
     farm_id: '',
     phone_number: '',
     village_location: '',
@@ -29,11 +28,13 @@ export default function FarmVisitForm() {
     number_of_animals: 0,
     crop_issues: [],
     livestock_issues: [],
-    photo_url: '',
+    photo_urls: [],
     video_link: '',
     advice_given: '',
     follow_up_needed: false,
     proposed_follow_up_date: '',
+    routine_check: false,
+    routine_check_date: '',
     training_needed: false,
     referral_to_specialist: '',
     additional_notes: '',
@@ -78,30 +79,39 @@ export default function FarmVisitForm() {
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploadingPhoto(true);
+    
+    const uploadPromises = Array.from(files).map(async (file) => {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `farm-photos/${fileName}`;
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
-    const filePath = `farm-photos/${fileName}`;
+      const { error: uploadError } = await supabase.storage
+        .from('farm-visits')
+        .upload(filePath, file);
 
-    const { error: uploadError } = await supabase.storage
-      .from('farm-visits')
-      .upload(filePath, file);
+      if (uploadError) {
+        console.error('Error uploading photo:', uploadError);
+        return null;
+      }
 
-    if (uploadError) {
-      console.error('Error uploading photo:', uploadError);
-      setUploadingPhoto(false);
-      return;
-    }
+      const { data } = supabase.storage
+        .from('farm-visits')
+        .getPublicUrl(filePath);
 
-    const { data } = supabase.storage
-      .from('farm-visits')
-      .getPublicUrl(filePath);
+      return data.publicUrl;
+    });
 
-    setFormData(prev => ({ ...prev, photo_url: data.publicUrl }));
+    const uploadedUrls = (await Promise.all(uploadPromises)).filter(url => url !== null) as string[];
+    
+    setFormData(prev => ({
+      ...prev,
+      photo_urls: [...(prev.photo_urls || []), ...uploadedUrls]
+    }));
+    
     setUploadingPhoto(false);
   };
 
@@ -313,14 +323,16 @@ export default function FarmVisitForm() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Main Crops</label>
-                      <input
-                        type="text"
+                      <select
                         name="main_crops"
                         value={formData.main_crops}
                         onChange={handleInputChange}
-                        placeholder="e.g., Onion, Rice"
                         className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-emerald-500 focus:ring focus:ring-emerald-200 transition"
-                      />
+                      >
+                        <option value="">Select crop</option>
+                        <option value="Rice">Rice</option>
+                        <option value="Onion">Onion</option>
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Crop Stage</label>
@@ -406,7 +418,7 @@ export default function FarmVisitForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Photo Upload</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Photo Upload (Multiple)</label>
                   <div className="relative">
                     <input
                       type="file"
@@ -414,6 +426,7 @@ export default function FarmVisitForm() {
                       onChange={handlePhotoUpload}
                       className="hidden"
                       id="photo-upload"
+                      multiple
                     />
                     <label
                       htmlFor="photo-upload"
@@ -421,19 +434,28 @@ export default function FarmVisitForm() {
                     >
                       {uploadingPhoto ? (
                         <span className="text-gray-600">Uploading...</span>
-                      ) : formData.photo_url ? (
+                      ) : formData.photo_urls && formData.photo_urls.length > 0 ? (
                         <span className="text-emerald-600 flex items-center">
                           <CheckCircle className="w-5 h-5 mr-2" />
-                          Photo Uploaded
+                          {formData.photo_urls.length} Photo(s) Uploaded
                         </span>
                       ) : (
                         <span className="text-gray-600 flex items-center">
                           <Camera className="w-5 h-5 mr-2" />
-                          Choose Photo
+                          Choose Photos
                         </span>
                       )}
                     </label>
                   </div>
+                  {formData.photo_urls && formData.photo_urls.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {formData.photo_urls.map((url, index) => (
+                        <div key={index} className="relative w-16 h-16 rounded overflow-hidden">
+                          <img src={url} alt={`Farm photo ${index + 1}`} className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Video Link</label>
@@ -490,6 +512,30 @@ export default function FarmVisitForm() {
                       type="date"
                       name="proposed_follow_up_date"
                       value={formData.proposed_follow_up_date}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-emerald-500 focus:ring focus:ring-emerald-200 transition"
+                    />
+                  </div>
+                )}
+                
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    name="routine_check"
+                    checked={formData.routine_check}
+                    onChange={handleInputChange}
+                    className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500"
+                  />
+                  <label className="text-sm font-semibold text-gray-700">Routine Check</label>
+                </div>
+
+                {formData.routine_check && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Routine Check Date</label>
+                    <input
+                      type="date"
+                      name="routine_check_date"
+                      value={formData.routine_check_date}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-emerald-500 focus:ring focus:ring-emerald-200 transition"
                     />
