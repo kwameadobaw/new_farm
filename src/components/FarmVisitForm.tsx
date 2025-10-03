@@ -332,6 +332,7 @@ export default function FarmVisitForm() {
                         <option value="">Select crop</option>
                         <option value="Rice">Rice</option>
                         <option value="Onion">Onion</option>
+                        <option value="Maize">Maize</option>
                       </select>
                     </div>
                     <div>
