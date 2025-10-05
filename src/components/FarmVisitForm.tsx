@@ -4,6 +4,8 @@ import { Camera, Upload, CheckCircle } from 'lucide-react';
 
 const CROP_ISSUES = ['No issues', 'Pests', 'Diseases', 'Nutrient Deficiency', 'Poor Germination', 'Water Stress'];
 const LIVESTOCK_ISSUES = ['No issues', 'Illness', 'Parasites', 'Malnutrition', 'Poor Housing'];
+const CROP_ACTIVITIES = ['Land preparation', 'Nursery bed', 'Nursery', 'Pruning', 'Broadcasting', 'Planting', 'Hand picking', 'Raising of mount', 'Transplant', 'Shelling and threshing', 'Pegging and lining', 'Diging', 'Fertilizer application', 'Spraying /chemicals application', 'Harvesting', 'Drying', 'None of the above'];
+const LIVESTOCK_ACTIVITIES = ['Injection (dewormer, vitamin, iron....ect.)', 'Extension of pen/housing', 'Artificial insemination', 'Teeth clipping', 'Tail cutting', 'Custration', 'Dehorning', 'Vaccination', 'None of the above'];
 
 export default function FarmVisitForm() {
   const [cropStages, setCropStages] = useState<CropStage[]>([]);
@@ -68,7 +70,7 @@ export default function FarmVisitForm() {
     }
   };
 
-  const handleCheckboxGroup = (name: 'crop_issues' | 'livestock_issues', value: string) => {
+  const handleCheckboxGroup = (name: 'crop_issues' | 'livestock_issues' | 'crop_activities' | 'livestock_activities', value: string) => {
     setFormData(prev => {
       const current = prev[name] || [];
       const updated = current.includes(value)
@@ -352,6 +354,23 @@ export default function FarmVisitForm() {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">Crop Activities</label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {CROP_ACTIVITIES.map(activity => (
+                        <label key={activity} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.crop_activities?.includes(activity)}
+                            onChange={() => handleCheckboxGroup('crop_activities', activity)}
+                            className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500"
+                          />
+                          <span className="text-sm text-gray-700">{activity}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Crop Issues</label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {CROP_ISSUES.map(issue => (
@@ -399,8 +418,25 @@ export default function FarmVisitForm() {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">Livestock Activities</label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {LIVESTOCK_ACTIVITIES.map(activity => (
+                        <label key={activity} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.livestock_activities?.includes(activity)}
+                            onChange={() => handleCheckboxGroup('livestock_activities', activity)}
+                            className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
+                          />
+                          <span className="text-sm text-gray-700">{activity}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Livestock Issues</label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {LIVESTOCK_ISSUES.map(issue => (
                         <label key={issue} className="flex items-center space-x-2 cursor-pointer">
                           <input

@@ -243,6 +243,12 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                           <div className="space-y-2 text-sm">
                             <p><span className="font-medium">Main Crops:</span> {visit.main_crops}</p>
                             <p><span className="font-medium">Crop Stage:</span> {visit.crop_stage || 'N/A'}</p>
+                            {visit.crop_activities && visit.crop_activities.length > 0 && (
+                              <p>
+                                <span className="font-medium">Crop Activities:</span>{' '}
+                                {visit.crop_activities.join(', ')}
+                              </p>
+                            )}
                             {visit.crop_issues && visit.crop_issues.length > 0 && (
                               <p>
                                 <span className="font-medium">Crop Issues:</span>{' '}
@@ -259,6 +265,12 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                           <div className="space-y-2 text-sm">
                             <p><span className="font-medium">Livestock Type:</span> {visit.livestock_type}</p>
                             <p><span className="font-medium">Number of Animals:</span> {visit.number_of_animals || 0}</p>
+                            {visit.livestock_activities && visit.livestock_activities.length > 0 && (
+                              <p>
+                                <span className="font-medium">Livestock Activities:</span>{' '}
+                                {visit.livestock_activities.join(', ')}
+                              </p>
+                            )}
                             {visit.livestock_issues && visit.livestock_issues.length > 0 && (
                               <p>
                                 <span className="font-medium">Livestock Issues:</span>{' '}

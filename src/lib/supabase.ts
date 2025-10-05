@@ -24,8 +24,10 @@ export interface FarmVisit {
   time_spent_hours: number;
   main_crops?: string;
   crop_stage?: string;
+  crop_activities?: string[];
   livestock_type?: string;
   number_of_animals?: number;
+  livestock_activities?: string[];
   crop_issues?: string[];
   livestock_issues?: string[];
   photo_urls?: string[];

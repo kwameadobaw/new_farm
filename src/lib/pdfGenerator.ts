@@ -191,6 +191,14 @@ export async function generatePDF(visit: FarmVisit) {
         <span class="field-value">${visit.crop_stage}</span>
       </div>
       ` : ''}
+      ${visit.crop_activities && visit.crop_activities.length > 0 ? `
+      <div class="field">
+        <span class="field-label">Crop Activities:</span>
+        <ul class="issues-list">
+          ${visit.crop_activities.map(activity => `<li>${activity}</li>`).join('')}
+        </ul>
+      </div>
+      ` : ''}
       ${visit.crop_issues && visit.crop_issues.length > 0 ? `
       <div class="field">
         <span class="field-label">Crop Issues:</span>
@@ -213,6 +221,14 @@ export async function generatePDF(visit: FarmVisit) {
         <span class="field-label">Number of Animals:</span>
         <span class="field-value">${visit.number_of_animals || 0}</span>
       </div>
+      ${visit.livestock_activities && visit.livestock_activities.length > 0 ? `
+      <div class="field">
+        <span class="field-label">Livestock Activities:</span>
+        <ul class="issues-list">
+          ${visit.livestock_activities.map(activity => `<li>${activity}</li>`).join('')}
+        </ul>
+      </div>
+      ` : ''}
       ${visit.livestock_issues && visit.livestock_issues.length > 0 ? `
       <div class="field">
         <span class="field-label">Livestock Issues:</span>
